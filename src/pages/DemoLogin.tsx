@@ -8,7 +8,7 @@ import { toast } from "@/hooks/use-toast";
 
 const DEMO_USERNAME = "demo_judge";
 const DEMO_PASSWORD = "••••••••";
-const TYPE_SPEED = 90;
+const TYPE_SPEED = 45;
 
 const DemoLogin = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const DemoLogin = () => {
   const btnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const t = setTimeout(() => setPhase("typing-user"), 800);
+    const t = setTimeout(() => setPhase("typing-user"), 400);
     return () => clearTimeout(t);
   }, []);
 
@@ -31,7 +31,7 @@ const DemoLogin = () => {
       setUsername(DEMO_USERNAME.slice(0, i));
       if (i >= DEMO_USERNAME.length) {
         clearInterval(interval);
-        setTimeout(() => setPhase("typing-pass"), 400);
+        setTimeout(() => setPhase("typing-pass"), 200);
       }
     }, TYPE_SPEED);
     return () => clearInterval(interval);
@@ -46,7 +46,7 @@ const DemoLogin = () => {
       setPassword(DEMO_PASSWORD.slice(0, i));
       if (i >= DEMO_PASSWORD.length) {
         clearInterval(interval);
-        setTimeout(() => setPhase("ready"), 500);
+        setTimeout(() => setPhase("ready"), 250);
       }
     }, TYPE_SPEED);
     return () => clearInterval(interval);
@@ -63,9 +63,9 @@ const DemoLogin = () => {
           description: "Welcome back, Judge! Redirecting to dashboard...",
         });
         setPhase("done");
-        setTimeout(() => navigate("/dashboard"), 1200);
-      }, 1000);
-    }, 700);
+        setTimeout(() => navigate("/dashboard"), 600);
+      }, 500);
+    }, 350);
     return () => clearTimeout(t);
   }, [phase, navigate]);
 

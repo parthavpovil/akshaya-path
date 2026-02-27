@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import DemoLogin from "./pages/DemoLogin";
 import Dashboard from "./pages/Dashboard";
+import Schemes from "./pages/Schemes";
+import PanchayatDashboard from "./pages/PanchayatDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +22,8 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/demo-login" element={<DemoLogin />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/schemes" element={<Schemes />} />
+          <Route path="/panchayat" element={<PanchayatDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
