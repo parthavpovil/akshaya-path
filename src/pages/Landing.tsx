@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Zap, Eye, Shield, Users, Building2, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const features = [
   {
@@ -17,7 +18,7 @@ const features = [
   {
     icon: Zap,
     title: "Instant Decisions",
-    description: "AI-powered eligibility engine delivers results immediately.",
+    description: "Agentic AI eligibility engine delivers results immediately.",
   },
 ];
 
@@ -61,6 +62,11 @@ const Landing = () => {
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background">
       <div className="mesh-gradient" />
 
+      {/* Theme toggle */}
+      <div className="fixed top-6 right-6 z-50">
+        <ThemeToggle />
+      </div>
+
       <div className="relative z-10 flex flex-col items-center px-6 text-center max-w-3xl mx-auto">
         {/* Pill badge */}
         <motion.div
@@ -73,7 +79,7 @@ const Landing = () => {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
           </span>
-          AI-Powered · Instant · Transparent
+          Agentic AI · Instant · Transparent
         </motion.div>
 
         {/* Headline */}
@@ -94,7 +100,7 @@ const Landing = () => {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="text-lg sm:text-xl text-muted-foreground max-w-xl mb-14 font-body"
         >
-          Apply for government schemes in seconds. Our AI handles the rest — no paperwork, no waiting.
+          Apply for government schemes in seconds. Our Agentic AI handles the rest — no paperwork, no waiting.
         </motion.p>
 
         {/* Three flow cards */}

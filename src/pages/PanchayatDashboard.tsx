@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Building2, Users, FileCheck, AlertTriangle, TrendingUp, ArrowLeft, ClipboardList, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const stats = [
   { label: "Total Applications", value: "342", icon: ClipboardList, color: "text-primary" },
@@ -38,12 +39,15 @@ const PanchayatDashboard = () => {
             <span className="text-foreground">Agent</span>
             <span className="ml-2 text-xs font-mono bg-success/10 text-success px-2 py-0.5 rounded-md">Panchayat</span>
           </h2>
-          <button
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-body"
-          >
-            <ArrowLeft className="h-4 w-4" /> Home
-          </button>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-body"
+            >
+              <ArrowLeft className="h-4 w-4" /> Home
+            </button>
+          </div>
         </div>
       </nav>
 

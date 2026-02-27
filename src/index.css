@@ -4,6 +4,53 @@
 
 @layer base {
   :root {
+    --background: 210 20% 98%;
+    --foreground: 220 26% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 26% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 26% 14%;
+
+    --primary: 38 92% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 187 72% 38%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 14% 92%;
+    --muted-foreground: 220 10% 40%;
+
+    --accent: 220 14% 92%;
+    --accent-foreground: 220 26% 14%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+
+    --pending: 263 70% 58%;
+    --pending-foreground: 0 0% 100%;
+
+    --border: 220 13% 87%;
+    --input: 220 13% 87%;
+    --ring: 38 92% 50%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 26% 14%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 92%;
+    --sidebar-accent-foreground: 220 26% 14%;
+    --sidebar-border: 220 13% 87%;
+    --sidebar-ring: 38 92% 50%;
+  }
+
+  .dark {
     --background: 220 26% 5%;
     --foreground: 210 20% 98%;
 
@@ -37,8 +84,6 @@
     --border: 220 16% 16%;
     --input: 220 16% 16%;
     --ring: 38 92% 50%;
-
-    --radius: 0.75rem;
 
     --sidebar-background: 220 30% 7%;
     --sidebar-foreground: 210 20% 98%;
@@ -90,14 +135,24 @@
   }
 
   .glass {
-    background: hsla(220, 30%, 9%, 0.7);
+    background: hsla(220, 14%, 96%, 0.7);
     backdrop-filter: blur(24px);
+    border: 1px solid hsla(0, 0%, 0%, 0.06);
+  }
+
+  .dark .glass {
+    background: hsla(220, 30%, 9%, 0.7);
     border: 1px solid hsla(0, 0%, 100%, 0.06);
   }
 
   .glass-card {
-    background: hsla(220, 30%, 9%, 0.6);
+    background: hsla(220, 14%, 96%, 0.6);
     backdrop-filter: blur(16px);
+    border: 1px solid hsla(0, 0%, 0%, 0.08);
+  }
+
+  .dark .glass-card {
+    background: hsla(220, 30%, 9%, 0.6);
     border: 1px solid hsla(0, 0%, 100%, 0.08);
   }
 }
@@ -129,6 +184,11 @@
   position: absolute;
   border-radius: 50%;
   filter: blur(120px);
+  opacity: 0.15;
+}
+
+.dark .mesh-gradient::before,
+.dark .mesh-gradient::after {
   opacity: 0.3;
 }
 
