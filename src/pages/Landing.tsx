@@ -29,9 +29,9 @@ const flows = [
     description: "Browse government schemes, check eligibility, and apply online.",
     cta: "Browse Schemes",
     path: "/schemes",
-    accent: "from-secondary to-secondary/70",
-    iconBg: "bg-secondary/10",
-    iconColor: "text-secondary",
+    gradient: "bg-gradient-to-br from-primary to-primary/70",
+    iconBg: "bg-primary/10",
+    iconColor: "text-primary",
   },
   {
     icon: UserCog,
@@ -39,7 +39,7 @@ const flows = [
     description: "Administrative demo with automated login for judges and evaluators.",
     cta: "Go to Demo",
     path: "/demo-login",
-    accent: "from-primary to-primary/70",
+    gradient: "bg-gradient-to-r from-primary to-primary/70",
     iconBg: "bg-primary/10",
     iconColor: "text-primary",
   },
@@ -49,9 +49,9 @@ const flows = [
     description: "Local governance dashboard for panchayat-level scheme management.",
     cta: "Open Dashboard",
     path: "/panchayat",
-    accent: "from-success to-success/70",
-    iconBg: "bg-success/10",
-    iconColor: "text-success",
+    gradient: "bg-gradient-to-tr from-primary/70 to-primary",
+    iconBg: "bg-primary/10",
+    iconColor: "text-primary",
   },
 ];
 
@@ -126,7 +126,7 @@ const Landing = () => {
               <p className="text-sm text-muted-foreground font-body mb-5 leading-relaxed">{flow.description}</p>
               <Button
                 size="sm"
-                className={`mt-auto bg-gradient-to-r ${flow.accent} text-primary-foreground font-display font-semibold rounded-lg hover:opacity-90 transition-opacity w-full`}
+                className={`mt-auto ${flow.gradient} text-primary-foreground font-display font-semibold rounded-lg hover:opacity-90 transition-opacity w-full`}
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(flow.path);
