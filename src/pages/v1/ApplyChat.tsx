@@ -205,6 +205,12 @@ const DocUploadItem = ({ doc, index }: { doc: { name: string; size: string }; in
 const ApplicationForm = ({ onSubmit }: { onSubmit: () => void }) => {
   const [step, setStep] = useState(0);
 
+  // Scroll form container to top on step change
+  useEffect(() => {
+    const el = document.getElementById("app-form-scroll");
+    if (el) el.scrollTop = 0;
+  }, [step]);
+
   const ownerFields = [
     { key: "name", value: dummyOwner.name },
     { key: "fatherName", value: dummyOwner.fatherName },
@@ -503,12 +509,24 @@ const ApplyChat = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const autoTypeRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Auto-scroll
+  // Auto-scroll helper – scrolls the nearest scrollable parent (Radix viewport)
+  const scrollToBottom = useCallback(() => {
+    requestAnimationFrame(() => {
+      if (scrollRef.current) {
+        const viewport = scrollRef.current.closest('[data-radix-scroll-area-viewport]');
+        if (viewport) {
+          viewport.scrollTop = viewport.scrollHeight;
+        } else {
+          scrollRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+        }
+      }
+    });
+  }, []);
+
+  // Auto-scroll on new messages / typing
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, isTyping]);
+    scrollToBottom();
+  }, [messages, isTyping, phase, scrollToBottom]);
 
   // Cleanup interval on unmount
   useEffect(() => {
@@ -653,7 +671,7 @@ const ApplyChat = () => {
 
       {/* Application form phase */}
       {phase === "application" && (
-        <div className="relative z-10 flex-1 overflow-auto">
+        <div className="relative z-10 flex-1 overflow-auto" id="app-form-scroll">
           <ApplicationForm onSubmit={handleSubmit} />
         </div>
       )}
