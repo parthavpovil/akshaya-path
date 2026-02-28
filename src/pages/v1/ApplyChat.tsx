@@ -90,6 +90,30 @@ const dummyDocs = [
   { name: "Site_Plan_Survey.pdf", size: "3.2 MB" },
 ];
 
+// Stable field definitions (outside component to avoid re-renders)
+const ownerFields = [
+  { key: "name", value: dummyOwner.name },
+  { key: "fatherName", value: dummyOwner.fatherName },
+  { key: "aadhaar", value: dummyOwner.aadhaar },
+  { key: "phone", value: dummyOwner.phone },
+  { key: "email", value: dummyOwner.email },
+  { key: "address", value: dummyOwner.address },
+];
+const landFields = [
+  { key: "surveyNo", value: dummyLand.surveyNo },
+  { key: "area", value: dummyLand.area },
+  { key: "zone", value: dummyLand.zone },
+  { key: "plotAddress", value: dummyLand.plotAddress },
+  { key: "buildingType", value: dummyLand.buildingType },
+  { key: "floors", value: dummyLand.floors },
+  { key: "engName", value: dummyEngineer.name },
+  { key: "engLicense", value: dummyEngineer.licenseNo },
+  { key: "engAuthority", value: dummyEngineer.regAuthority },
+  { key: "engPhone", value: dummyEngineer.phone },
+  { key: "engFirm", value: dummyEngineer.firmName },
+  { key: "engCategory", value: dummyEngineer.category },
+];
+
 // Hook: auto-type a set of field values sequentially
 function useAutoTypeFields(fields: { key: string; value: string }[], active: boolean) {
   const [values, setValues] = useState<Record<string, string>>({});
@@ -122,7 +146,7 @@ function useAutoTypeFields(fields: { key: string; value: string }[], active: boo
 
     timeout = setTimeout(() => typeField(0), 500);
     return () => { cancelled = true; clearTimeout(timeout); };
-  }, [active, fields]);
+  }, [active]); // only depend on active, fields are stable
 
   return { values, allDone };
 }
@@ -141,7 +165,7 @@ const RenderContent = ({ content }: { content: string }) => (
 );
 
 // ── Document upload simulation ──
-const DocUploadItem = ({ doc, index }: { doc: { name: string; size: string }; index: number }) => {
+const DocUploadItem = ({ doc, index, onVerified }: { doc: { name: string; size: string }; index: number; onVerified?: () => void }) => {
   const [progress, setProgress] = useState(0);
   const [verifying, setVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
@@ -161,6 +185,7 @@ const DocUploadItem = ({ doc, index }: { doc: { name: string; size: string }; in
           setTimeout(() => {
             setVerifying(false);
             setVerified(true);
+            onVerified?.();
           }, 800 + Math.random() * 400);
         }
       }, stepTime);
@@ -212,28 +237,15 @@ const ApplicationForm = ({ onSubmit }: { onSubmit: () => void }) => {
     if (el) el.scrollTop = 0;
   }, [step]);
 
-  const ownerFields = [
-    { key: "name", value: dummyOwner.name },
-    { key: "fatherName", value: dummyOwner.fatherName },
-    { key: "aadhaar", value: dummyOwner.aadhaar },
-    { key: "phone", value: dummyOwner.phone },
-    { key: "email", value: dummyOwner.email },
-    { key: "address", value: dummyOwner.address },
-  ];
-  const landFields = [
-    { key: "surveyNo", value: dummyLand.surveyNo },
-    { key: "area", value: dummyLand.area },
-    { key: "zone", value: dummyLand.zone },
-    { key: "plotAddress", value: dummyLand.plotAddress },
-    { key: "buildingType", value: dummyLand.buildingType },
-    { key: "floors", value: dummyLand.floors },
-    { key: "engName", value: dummyEngineer.name },
-    { key: "engLicense", value: dummyEngineer.licenseNo },
-    { key: "engAuthority", value: dummyEngineer.regAuthority },
-    { key: "engPhone", value: dummyEngineer.phone },
-    { key: "engFirm", value: dummyEngineer.firmName },
-    { key: "engCategory", value: dummyEngineer.category },
-  ];
+  const [docsAllDone, setDocsAllDone] = useState(false);
+  const docsVerifiedCount = useRef(0);
+
+  const handleDocVerified = useCallback(() => {
+    docsVerifiedCount.current++;
+    if (docsVerifiedCount.current >= dummyDocs.length) {
+      setDocsAllDone(true);
+    }
+  }, []);
 
   const ownerAuto = useAutoTypeFields(ownerFields, step === 0);
   const landAuto = useAutoTypeFields(landFields, step === 1);
@@ -289,16 +301,25 @@ const ApplicationForm = ({ onSubmit }: { onSubmit: () => void }) => {
                   { key: "phone", label: "Phone" },
                   { key: "email", label: "Email" },
                   { key: "address", label: "Address" },
-                ].map((f) => (
-                  <div key={f.key} className="space-y-1.5">
-                    <Label className="text-xs font-mono text-muted-foreground">{f.label}</Label>
-                    <Input
-                      value={ownerAuto.values[f.key] || ""}
-                      readOnly
-                      className="bg-muted/50 font-body transition-all"
-                    />
-                  </div>
-                ))}
+                 ].map((f) => {
+                   const val = ownerAuto.values[f.key] || "";
+                   const target = ownerFields.find(o => o.key === f.key)?.value || "";
+                   const isTyping = val.length > 0 && val.length < target.length;
+                   const isDone = val === target;
+                   return (
+                     <div key={f.key} className="space-y-1.5">
+                       <Label className="text-xs font-mono text-muted-foreground">{f.label}</Label>
+                       <div className="relative">
+                         <Input
+                           value={val}
+                           readOnly
+                           className={`bg-muted/50 font-body transition-all ${isTyping ? "border-primary ring-1 ring-primary/30" : ""} ${isDone ? "border-primary/40" : ""}`}
+                         />
+                         {isTyping && <span className="absolute right-3 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary animate-pulse" />}
+                       </div>
+                     </div>
+                   );
+                 })}
               </div>
             </div>
           )}
@@ -319,16 +340,25 @@ const ApplicationForm = ({ onSubmit }: { onSubmit: () => void }) => {
                   { key: "plotAddress", label: "Plot Address" },
                   { key: "buildingType", label: "Building Type" },
                   { key: "floors", label: "Number of Floors" },
-                ].map((f) => (
-                  <div key={f.key} className="space-y-1.5">
-                    <Label className="text-xs font-mono text-muted-foreground">{f.label}</Label>
-                    <Input
-                      value={landAuto.values[f.key] || ""}
-                      readOnly
-                      className="bg-muted/50 font-body transition-all"
-                    />
-                  </div>
-                ))}
+                 ].map((f) => {
+                   const val = landAuto.values[f.key] || "";
+                   const target = landFields.find(o => o.key === f.key)?.value || "";
+                   const isTyping = val.length > 0 && val.length < target.length;
+                   const isDone = val === target;
+                   return (
+                     <div key={f.key} className="space-y-1.5">
+                       <Label className="text-xs font-mono text-muted-foreground">{f.label}</Label>
+                       <div className="relative">
+                         <Input
+                           value={val}
+                           readOnly
+                           className={`bg-muted/50 font-body transition-all ${isTyping ? "border-primary ring-1 ring-primary/30" : ""} ${isDone ? "border-primary/40" : ""}`}
+                         />
+                         {isTyping && <span className="absolute right-3 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary animate-pulse" />}
+                       </div>
+                     </div>
+                   );
+                 })}
               </div>
 
               {/* Licensed Engineer Section */}
@@ -345,16 +375,25 @@ const ApplicationForm = ({ onSubmit }: { onSubmit: () => void }) => {
                     { key: "engPhone", label: "Contact Number" },
                     { key: "engFirm", label: "Firm / Practice Name" },
                     { key: "engCategory", label: "License Category" },
-                  ].map((f) => (
-                    <div key={f.key} className="space-y-1.5">
-                      <Label className="text-xs font-mono text-muted-foreground">{f.label}</Label>
-                      <Input
-                        value={landAuto.values[f.key] || ""}
-                        readOnly
-                        className="bg-muted/50 font-body transition-all"
-                      />
-                    </div>
-                  ))}
+                   ].map((f) => {
+                     const val = landAuto.values[f.key] || "";
+                     const target = landFields.find(o => o.key === f.key)?.value || "";
+                     const isTyping = val.length > 0 && val.length < target.length;
+                     const isDone = val === target;
+                     return (
+                       <div key={f.key} className="space-y-1.5">
+                         <Label className="text-xs font-mono text-muted-foreground">{f.label}</Label>
+                         <div className="relative">
+                           <Input
+                             value={val}
+                             readOnly
+                             className={`bg-muted/50 font-body transition-all ${isTyping ? "border-primary ring-1 ring-primary/30" : ""} ${isDone ? "border-primary/40" : ""}`}
+                           />
+                           {isTyping && <span className="absolute right-3 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary animate-pulse" />}
+                         </div>
+                       </div>
+                     );
+                   })}
                 </div>
                 {landAuto.allDone && (
                   <motion.div
@@ -378,7 +417,12 @@ const ApplicationForm = ({ onSubmit }: { onSubmit: () => void }) => {
               <p className="text-xs text-muted-foreground font-body">Uploading and verifying required documents…</p>
               <div className="space-y-2">
                 {dummyDocs.map((doc, i) => (
-                  <DocUploadItem key={doc.name} doc={doc} index={i} />
+                  <DocUploadItem
+                    key={doc.name}
+                    doc={doc}
+                    index={i}
+                    onVerified={handleDocVerified}
+                  />
                 ))}
               </div>
             </div>
@@ -479,15 +523,18 @@ const ApplicationForm = ({ onSubmit }: { onSubmit: () => void }) => {
         ) : (
           <div />
         )}
-        {step < formSteps.length - 1 ? (
-          <Button
-            onClick={() => setStep(step + 1)}
-            disabled={step === 0 && !ownerAuto.allDone || step === 1 && !landAuto.allDone}
-            className="gradient-saffron text-primary-foreground font-display"
-          >
-            Next <ChevronRight className="ml-1 h-4 w-4" />
-          </Button>
-        ) : (
+        {step < formSteps.length - 1 ? (() => {
+          const isReady = (step === 0 && ownerAuto.allDone) || (step === 1 && landAuto.allDone) || (step === 2 && docsAllDone);
+          return (
+            <Button
+              onClick={() => setStep(step + 1)}
+              disabled={!isReady}
+              className={`gradient-saffron text-primary-foreground font-display ${isReady ? "animate-glow-pulse" : ""}`}
+            >
+              Next <ChevronRight className="ml-1 h-4 w-4" />
+            </Button>
+          );
+        })() : (
           <Button onClick={onSubmit} className="gradient-saffron text-primary-foreground font-display animate-glow-pulse">
             Submit Application <Send className="ml-2 h-4 w-4" />
           </Button>
