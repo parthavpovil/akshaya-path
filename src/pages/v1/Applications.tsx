@@ -15,7 +15,7 @@ const applications = [
     submittedDate: "28 Feb 2025",
     lastUpdated: "28 Feb 2025",
     status: "pending" as ApplicationStatus,
-    statusText: "Submitted — permit file under initial review",
+    statusText: "Submitted — a site engineer will be assigned shortly and will visit for verification. Engineer assignment is randomised to ensure transparency.",
     amount: "—",
     timeline: [
       { step: "Application Submitted", date: "28 Feb 2025", done: true },
