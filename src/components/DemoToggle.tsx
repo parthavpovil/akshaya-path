@@ -9,9 +9,9 @@ export const DemoToggle = () => {
       onClick={toggleDemoMode}
       className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono border transition-all duration-200"
       style={{
-        borderColor: isDemoMode ? "hsl(var(--secondary))" : "hsl(var(--border))",
-        background: isDemoMode ? "hsl(var(--secondary) / 0.1)" : "transparent",
-        color: isDemoMode ? "hsl(var(--secondary))" : "hsl(var(--muted-foreground))",
+        borderColor: isDemoMode ? "hsl(var(--secondary))" : "hsl(var(--primary))",
+        background: isDemoMode ? "hsl(var(--secondary) / 0.1)" : "hsl(var(--primary) / 0.1)",
+        color: isDemoMode ? "hsl(var(--secondary))" : "hsl(var(--primary))",
       }}
       title={isDemoMode ? "Switch to Live mode (v2)" : "Switch to Demo mode (v1)"}
     >
