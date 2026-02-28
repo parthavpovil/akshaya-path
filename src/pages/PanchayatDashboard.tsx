@@ -12,11 +12,14 @@ const stats = [
 ];
 
 const recentApplications = [
-  { citizen: "Ramesh K.", scheme: "PM-KISAN", status: "approved", time: "10 min ago" },
-  { citizen: "Lakshmi S.", scheme: "Ujjwala Yojana", status: "pending", time: "25 min ago" },
-  { citizen: "Suresh M.", scheme: "PM Awas Yojana", status: "in_progress", time: "1 hr ago" },
-  { citizen: "Anita D.", scheme: "Ayushman Bharat", status: "approved", time: "2 hrs ago" },
-  { citizen: "Venkat R.", scheme: "SC/ST Scholarship", status: "rejected", time: "3 hrs ago" },
+  { citizen: "Ramesh Kumar", scheme: "PM-KISAN", status: "approved", time: "10 min ago" },
+  { citizen: "Lakshmi Sundari", scheme: "Ujjwala Yojana", status: "pending", time: "25 min ago" },
+  { citizen: "Suresh Mohan", scheme: "PM Awas Yojana", status: "in_progress", time: "1 hr ago" },
+  { citizen: "Anita Devi", scheme: "Ayushman Bharat", status: "approved", time: "2 hrs ago" },
+  { citizen: "Venkat Rao", scheme: "SC/ST Scholarship", status: "rejected", time: "3 hrs ago" },
+  { citizen: "Priya Kumari", scheme: "MUDRA Loan", status: "approved", time: "4 hrs ago" },
+  { citizen: "Arvind Singh", scheme: "Jan Dhan Yojana", status: "approved", time: "5 hrs ago" },
+  { citizen: "Meena Bai", scheme: "MGNREGA", status: "in_progress", time: "6 hrs ago" },
 ];
 
 const statusBadge: Record<string, string> = {

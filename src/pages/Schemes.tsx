@@ -4,12 +4,15 @@ import { FileText, ArrowRight, IndianRupee, ArrowLeft, MessageCircle, Sparkles }
 import { Button } from "@/components/ui/button";
 
 const schemes = [
-  { id: "pm-kisan", name: "PM-KISAN", description: "Income support of ₹6,000/year for small and marginal farmers.", income_limit: 200000, district: null, docs: 3, category: "Agriculture" },
-  { id: "ayushman-bharat", name: "Ayushman Bharat", description: "Health insurance coverage of ₹5 lakh per family per year for secondary and tertiary care.", income_limit: 500000, district: null, docs: 4, category: "Health" },
-  { id: "pm-awas-yojana", name: "PM Awas Yojana", description: "Financial assistance for construction of pucca houses for eligible rural households.", income_limit: 300000, district: null, docs: 5, category: "Housing" },
-  { id: "scholarship-sc-st", name: "SC/ST Scholarship", description: "Post-matric scholarship for students belonging to Scheduled Castes and Scheduled Tribes.", income_limit: 250000, district: null, docs: 3, category: "Education" },
-  { id: "ujjwala-yojana", name: "Ujjwala Yojana", description: "Free LPG connections for women from Below Poverty Line households.", income_limit: 150000, district: null, docs: 2, category: "Welfare" },
-  { id: "mudra-loan", name: "MUDRA Loan", description: "Collateral-free loans up to ₹10 lakh for micro and small enterprises.", income_limit: null, district: null, docs: 4, category: "Finance" },
+  { id: "pm-kisan", name: "PM-KISAN", description: "Income support of ₹6,000/year for small and marginal farmers in three equal installments.", income_limit: 200000, district: null, docs: 3, category: "Agriculture" },
+  { id: "ayushman-bharat", name: "Ayushman Bharat", description: "Health insurance coverage of ₹5 lakh per family per year for secondary and tertiary care hospitalization.", income_limit: 500000, district: null, docs: 4, category: "Health" },
+  { id: "pm-awas-yojana", name: "PM Awas Yojana", description: "Financial assistance of ₹1.2L for construction of pucca houses for eligible rural households.", income_limit: 300000, district: null, docs: 5, category: "Housing" },
+  { id: "scholarship-sc-st", name: "SC/ST Scholarship", description: "Post-matric scholarship covering tuition fees and maintenance allowance for SC/ST students.", income_limit: 250000, district: null, docs: 3, category: "Education" },
+  { id: "ujjwala-yojana", name: "Ujjwala Yojana", description: "Free LPG connections with first refill and stove for women from BPL households.", income_limit: 150000, district: null, docs: 2, category: "Welfare" },
+  { id: "mudra-loan", name: "MUDRA Loan", description: "Collateral-free loans up to ₹10 lakh under Shishu, Kishore, and Tarun categories.", income_limit: null, district: null, docs: 4, category: "Finance" },
+  { id: "sukanya-samriddhi", name: "Sukanya Samriddhi", description: "Savings scheme for girl child with 8.2% interest and tax benefits under Section 80C.", income_limit: null, district: null, docs: 3, category: "Finance" },
+  { id: "jan-dhan", name: "Jan Dhan Yojana", description: "Zero-balance bank account with RuPay debit card, ₹2 lakh accident cover, and ₹30,000 life cover.", income_limit: null, district: null, docs: 2, category: "Welfare" },
+  { id: "mgnrega", name: "MGNREGA", description: "100 days of guaranteed wage employment per year for rural households at ₹267/day.", income_limit: null, district: null, docs: 3, category: "Agriculture" },
 ];
 
 const categoryColors: Record<string, string> = {
