@@ -194,7 +194,7 @@ const ApplyChat = () => {
       {/* Input area */}
       <div className="relative z-10 glass border-t border-border">
         <div className="max-w-3xl mx-auto px-4 py-3">
-          <div className="flex items-end gap-2">
+          <div className="flex items-center gap-2">
             <div className="flex-1 relative">
               <textarea
                 ref={inputRef}
@@ -211,9 +211,9 @@ const ApplyChat = () => {
               onClick={sendMessage}
               disabled={!input.trim() || isTyping}
               size="icon"
-              className="h-11 w-11 rounded-xl gradient-saffron text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
+              className="h-11 w-11 rounded-xl gradient-saffron text-primary-foreground hover:opacity-90 transition-opacity shrink-0 flex items-center justify-center"
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-4 w-4 block" />
             </Button>
           </div>
           <p className="text-[10px] text-muted-foreground font-mono text-center mt-2 opacity-60">
