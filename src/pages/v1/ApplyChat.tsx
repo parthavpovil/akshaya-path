@@ -555,26 +555,23 @@ const ApplyChat = () => {
   const [autoTypeComplete, setAutoTypeComplete] = useState(false);
   const [phase, setPhase] = useState<"chat" | "application" | "success">("chat");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const autoTypeRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const streamRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [streamingMsgIndex, setStreamingMsgIndex] = useState<number | null>(null);
   const [streamedLength, setStreamedLength] = useState(0);
 
-  // Auto-scroll helper – scrolls the nearest scrollable parent (Radix viewport)
+  // Auto-scroll helper – uses a bottom anchor for reliable scrolling during streaming
   const scrollToBottom = useCallback(() => {
+    // Double rAF ensures DOM has updated after state change
     requestAnimationFrame(() => {
-      if (scrollRef.current) {
-        const viewport = scrollRef.current.closest('[data-radix-scroll-area-viewport]');
-        if (viewport) {
-          viewport.scrollTop = viewport.scrollHeight;
-        } else {
-          scrollRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
-        }
-      }
+      requestAnimationFrame(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+      });
     });
   }, []);
 
-  // Auto-scroll on new messages / typing
+  // Auto-scroll on new messages / typing / streaming
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping, phase, streamedLength, scrollToBottom]);
@@ -820,6 +817,7 @@ const ApplyChat = () => {
                     </div>
                   </motion.div>
                 )}
+                <div ref={bottomRef} />
               </div>
             </ScrollArea>
           </div>
