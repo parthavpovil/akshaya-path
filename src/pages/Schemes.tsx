@@ -1,8 +1,6 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, FileText, ArrowRight, IndianRupee, MapPin, ArrowLeft } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { FileText, ArrowRight, IndianRupee, ArrowLeft, MessageCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const schemes = [
@@ -22,15 +20,8 @@ const categoryColors: Record<string, string> = {
   Welfare: "border-l-destructive",
   Finance: "border-l-primary",
 };
-
 const Schemes = () => {
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
-
-  const filtered = schemes.filter((s) =>
-    s.name.toLowerCase().includes(search.toLowerCase()) ||
-    s.description.toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -53,30 +44,34 @@ const Schemes = () => {
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-2">
             Available <span className="text-gradient-saffron">Schemes</span>
           </h1>
-          <p className="text-muted-foreground font-body">{filtered.length} schemes available</p>
+          <p className="text-muted-foreground font-body">{schemes.length} schemes available</p>
         </motion.div>
 
-        {/* Search */}
+        {/* Chat CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-8"
         >
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search schemes..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 bg-muted/50 border-border h-12 rounded-xl font-body"
-            />
-          </div>
+          <button
+            onClick={() => navigate("/apply")}
+            className="w-full sm:w-auto glass-card rounded-2xl px-6 py-4 flex items-center gap-4 hover:-translate-y-0.5 transition-transform duration-200 group"
+          >
+            <div className="h-10 w-10 rounded-xl gradient-saffron flex items-center justify-center shrink-0">
+              <MessageCircle className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div className="text-left flex-1">
+              <p className="font-display text-sm font-semibold text-foreground">Not sure which scheme fits you?</p>
+              <p className="text-xs text-muted-foreground font-body">Chat with Akshaya Agent to discover the right scheme</p>
+            </div>
+            <Sparkles className="h-4 w-4 text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
+          </button>
         </motion.div>
 
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filtered.map((scheme, i) => (
+          {schemes.map((scheme, i) => (
             <motion.div
               key={scheme.id}
               initial={{ opacity: 0, y: 20 }}
@@ -109,12 +104,6 @@ const Schemes = () => {
             </motion.div>
           ))}
         </div>
-
-        {filtered.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground font-body">No schemes match your search.</p>
-          </div>
-        )}
       </div>
     </div>
   );
