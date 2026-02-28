@@ -194,7 +194,7 @@ const ApplyChat = () => {
       {/* Input area */}
       <div className="relative z-10 glass border-t border-border">
         <div className="max-w-3xl mx-auto px-4 py-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-2">
             <div className="flex-1 relative">
               <textarea
                 ref={inputRef}
