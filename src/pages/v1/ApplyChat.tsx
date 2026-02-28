@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 const TYPE_SPEED = 30;
 const BOT_DELAY = 1200;
 const AUTO_TYPE_START_DELAY = 800;
+const STREAM_SPEED = 8; // fast bot text streaming
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -508,6 +509,9 @@ const ApplyChat = () => {
   const [phase, setPhase] = useState<"chat" | "application" | "success">("chat");
   const scrollRef = useRef<HTMLDivElement>(null);
   const autoTypeRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const streamRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [streamingMsgIndex, setStreamingMsgIndex] = useState<number | null>(null);
+  const [streamedLength, setStreamedLength] = useState(0);
 
   // Auto-scroll helper – scrolls the nearest scrollable parent (Radix viewport)
   const scrollToBottom = useCallback(() => {
@@ -526,13 +530,38 @@ const ApplyChat = () => {
   // Auto-scroll on new messages / typing
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping, phase, scrollToBottom]);
+  }, [messages, isTyping, phase, streamedLength, scrollToBottom]);
 
-  // Cleanup interval on unmount
+  // Cleanup intervals on unmount
   useEffect(() => {
     return () => {
       if (autoTypeRef.current) clearInterval(autoTypeRef.current);
+      if (streamRef.current) clearInterval(streamRef.current);
     };
+  }, []);
+
+  // Helper to stream a bot message character by character
+  const streamBotMessage = useCallback((content: string, onDone: () => void) => {
+    setIsTyping(false);
+    // Add empty bot message placeholder
+    setMessages((prev) => {
+      const newIndex = prev.length;
+      setStreamingMsgIndex(newIndex);
+      setStreamedLength(0);
+      return [...prev, { role: "assistant", content }];
+    });
+    let charIdx = 0;
+    streamRef.current = setInterval(() => {
+      charIdx += 2; // stream 2 chars at a time for speed
+      setStreamedLength(charIdx);
+      if (charIdx >= content.length) {
+        if (streamRef.current) clearInterval(streamRef.current);
+        streamRef.current = null;
+        setStreamingMsgIndex(null);
+        setStreamedLength(0);
+        onDone();
+      }
+    }, STREAM_SPEED);
   }, []);
 
   // Process script entries
@@ -541,12 +570,12 @@ const ApplyChat = () => {
     const entry = demoScript[scriptIndex];
 
     if (entry.role === "assistant") {
-      // Show typing indicator, then add message
+      // Show typing indicator briefly, then stream the message
       setIsTyping(true);
       setTimeout(() => {
-        setMessages((prev) => [...prev, { role: "assistant", content: entry.content }]);
-        setIsTyping(false);
-        setScriptIndex((i) => i + 1);
+        streamBotMessage(entry.content, () => {
+          setScriptIndex((i) => i + 1);
+        });
       }, BOT_DELAY);
     } else {
       // Auto-type user message into input
@@ -579,7 +608,7 @@ const ApplyChat = () => {
   // Send message (user clicks send)
   const sendMessage = () => {
     const text = input.trim();
-    if (!text || isTyping || autoTyping) return;
+    if (!text || isTyping || autoTyping || streamingMsgIndex !== null) return;
 
     setMessages((prev) => [...prev, { role: "user", content: text }]);
     setInput("");
@@ -593,12 +622,12 @@ const ApplyChat = () => {
       // If next entry is the last assistant message, transition after it
       const nextIndex = scriptIndex + 1;
       if (nextIndex === demoScript.length - 1) {
-        // Last bot message — transition to form after it appears
+        // Last bot message — stream it then transition to form
         setIsTyping(true);
         setTimeout(() => {
-          setMessages((prev) => [...prev, { role: "assistant", content: demoScript[nextIndex].content }]);
-          setIsTyping(false);
-          setTimeout(() => setPhase("application"), 1500);
+          streamBotMessage(demoScript[nextIndex].content, () => {
+            setTimeout(() => setPhase("application"), 1500);
+          });
         }, BOT_DELAY);
         setScriptIndex(demoScript.length); // prevent further processing
         return;
@@ -715,7 +744,14 @@ const ApplyChat = () => {
                             : "glass-card text-foreground rounded-bl-md"
                         }`}
                       >
-                        <RenderContent content={msg.content} />
+                        <RenderContent content={
+                          streamingMsgIndex === i
+                            ? msg.content.slice(0, streamedLength)
+                            : msg.content
+                        } />
+                        {streamingMsgIndex === i && (
+                          <span className="inline-block w-0.5 h-4 bg-primary animate-pulse ml-0.5 align-text-bottom" />
+                        )}
                       </div>
                       {msg.role === "user" && (
                         <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
