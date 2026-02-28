@@ -817,7 +817,7 @@ const ApplyChat = () => {
                     </div>
                   </motion.div>
                 )}
-                <div ref={bottomRef} className="h-16" />
+                <div ref={bottomRef} className="h-24" />
               </div>
             </ScrollArea>
           </div>
