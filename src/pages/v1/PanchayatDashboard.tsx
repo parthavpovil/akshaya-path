@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Building2, Users, FileCheck, AlertTriangle, TrendingUp, ArrowLeft, ClipboardList, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { DemoToggle } from "@/components/DemoToggle";
 
 const stats = [
   { label: "Total Applications", value: "342", icon: ClipboardList, color: "text-primary" },
@@ -43,6 +44,7 @@ const PanchayatDashboard = () => {
             <span className="ml-2 text-xs font-mono bg-success/10 text-success px-2 py-0.5 rounded-md">Panchayat</span>
           </h2>
           <div className="flex items-center gap-3">
+            <DemoToggle />
             <ThemeToggle />
             <button
               onClick={() => navigate("/")}

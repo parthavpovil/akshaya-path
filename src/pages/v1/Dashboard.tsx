@@ -3,6 +3,7 @@ import { FileText, Send, ClipboardList, TrendingUp, Users, CheckCircle, ArrowRig
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { DemoToggle } from "@/components/DemoToggle";
 
 const stats = [
   { label: "Schemes Available", value: "24", icon: FileText, color: "text-primary" },
@@ -41,6 +42,7 @@ const Dashboard = () => {
             <button onClick={() => navigate("/schemes")} className="text-muted-foreground hover:text-foreground transition-colors">Schemes</button>
             <button onClick={() => navigate("/applications")} className="text-muted-foreground hover:text-foreground transition-colors">Applications</button>
             <span className="text-xs font-mono bg-muted px-2 py-1 rounded-md text-muted-foreground">demo_judge</span>
+            <DemoToggle />
             <ThemeToggle />
           </div>
         </div>

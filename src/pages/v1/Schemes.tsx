@@ -13,6 +13,7 @@ const schemes = [
   { id: "sukanya-samriddhi", name: "Sukanya Samriddhi", description: "Savings scheme for girl child with 8.2% interest and tax benefits under Section 80C.", income_limit: null, district: null, docs: 3, category: "Finance" },
   { id: "jan-dhan", name: "Jan Dhan Yojana", description: "Zero-balance bank account with RuPay debit card, ₹2 lakh accident cover, and ₹30,000 life cover.", income_limit: null, district: null, docs: 2, category: "Welfare" },
   { id: "mgnrega", name: "MGNREGA", description: "100 days of guaranteed wage employment per year for rural households at ₹267/day.", income_limit: null, district: null, docs: 3, category: "Agriculture" },
+  { id: "building-section", name: "Building Section Number", description: "Apply for building permit, completion certificate, and section number — fully guided by AI agents.", income_limit: null, district: null, docs: 6, category: "Housing" },
 ];
 
 const categoryColors: Record<string, string> = {
