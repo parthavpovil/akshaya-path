@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 
-const DEMO_USERNAME = "demo_judge";
+const DEMO_USERNAME = "admin";
 const DEMO_PASSWORD = "••••••••";
 const TYPE_SPEED = 45;
 
@@ -60,7 +60,7 @@ const DemoLogin = () => {
       setTimeout(() => {
         toast({
           title: "Login Successful",
-          description: "Welcome back, Judge! Redirecting to dashboard...",
+          description: "Welcome back! Redirecting to dashboard...",
         });
         setPhase("done");
         setTimeout(() => navigate("/dashboard"), 600);
