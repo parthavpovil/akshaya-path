@@ -10,18 +10,18 @@ type ApplicationStatus = "approved" | "pending" | "in_progress" | "rejected" | "
 const applications = [
   {
     id: "APP-2025-001",
-    scheme: "PM-KISAN",
-    category: "Agriculture",
+    scheme: "Building Section Number",
+    category: "Revenue / Land",
     submittedDate: "28 Feb 2025",
     lastUpdated: "28 Feb 2025",
     status: "pending" as ApplicationStatus,
-    statusText: "Submitted — under initial review",
-    amount: "₹6,000/year",
+    statusText: "Submitted — permit file under initial review",
+    amount: "—",
     timeline: [
       { step: "Application Submitted", date: "28 Feb 2025", done: true },
-      { step: "Documents Verification", date: "In Progress", done: false },
-      { step: "Eligibility Check", date: "—", done: false },
-      { step: "First Installment", date: "—", done: false },
+      { step: "Permit File Review", date: "In Progress", done: false },
+      { step: "Site Verification", date: "—", done: false },
+      { step: "Section Number Issued", date: "—", done: false },
     ],
   },
 ];
