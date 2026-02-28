@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Send, Bot, User, Sparkles, Loader2, CheckCircle, Upload, Building2, MapPin, FileText, ChevronRight, ShieldCheck, Clock, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -561,12 +561,14 @@ const ApplyChat = () => {
   const [streamingMsgIndex, setStreamingMsgIndex] = useState<number | null>(null);
   const [streamedLength, setStreamedLength] = useState(0);
 
-  // Auto-scroll helper – uses a bottom anchor for reliable scrolling during streaming
+  // Auto-scroll helper – directly scroll the overflow container
   const scrollToBottom = useCallback(() => {
-    // Double rAF ensures DOM has updated after state change
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+        const el = scrollRef.current;
+        if (el) {
+          el.scrollTo({ top: el.scrollHeight, behavior: "auto" });
+        }
       });
     });
   }, []);
@@ -574,7 +576,7 @@ const ApplyChat = () => {
   // Auto-scroll on new messages / typing / streaming
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping, phase, streamedLength, scrollToBottom]);
+  }, [messages, isTyping, phase, streamedLength, streamingMsgIndex, scrollToBottom]);
 
   // Cleanup intervals on unmount
   useEffect(() => {
@@ -752,9 +754,8 @@ const ApplyChat = () => {
       {/* Chat phase */}
       {phase === "chat" && (
         <>
-          <div className="relative z-10 flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              <div ref={scrollRef} className="max-w-3xl mx-auto px-4 py-6 space-y-4 min-h-full pb-32">
+          <div ref={scrollRef} className="relative z-10 flex-1 overflow-y-auto">
+            <div className="max-w-3xl mx-auto px-4 py-6 space-y-4 min-h-full">
                 {/* Context badge */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -818,12 +819,11 @@ const ApplyChat = () => {
                   </motion.div>
                 )}
                 <div ref={bottomRef} className="h-24" />
-              </div>
-            </ScrollArea>
+            </div>
           </div>
 
           {/* Floating Input area */}
-          <div className="fixed bottom-0 inset-x-0 z-50 glass border-t border-border/50 backdrop-blur-xl">
+          <div className="relative z-50 glass border-t border-border/50 backdrop-blur-xl shrink-0">
             <div className="max-w-3xl mx-auto px-4 py-3">
               <div className="flex items-start gap-2">
                 <div className="flex-1 relative">
