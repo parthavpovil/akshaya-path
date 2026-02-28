@@ -1,35 +1,46 @@
 
 
-# Akshaya Agent — Demo Login Flow
+## Plan: Scripted Demo Chat Flow for Building Permit (Section Number)
 
-## Change 1: Rename to "Akshaya Agent"
-- Update page title, meta tags, and navbar branding to "Akshaya Agent"
+### What this does
+Rewrites `src/pages/v1/ApplyChat.tsx` to run a fully scripted, typewriter-driven demo conversation about applying for a **Building Section Number** (building permit). The user never types — each reply is auto-filled in the input bar with a typewriter animation (same style as DemoLogin), and the user just clicks Send. After the chatbot phase, when the user agrees to apply, the chat UI transitions into a **step-by-step application form UI**.
 
-## Change 2: Landing Page with Demo CTA
-- Dark hero page with "Akshaya Agent" branding, tagline, and animated mesh gradient background
-- Prominent "Go to Demo →" button (saffron gradient) that navigates to the demo login screen
-- Staggered fade-up text animations on mount
+### Scripted conversation flow
 
-## Change 3: Demo Login Page (`/demo-login`)
-- Centered glassmorphic login card on dark background
-- Username and password input fields
-- When the page loads, after a brief pause:
-  1. Username field auto-types "demo_judge" character by character with a typewriter animation
-  2. Password field auto-types "••••••••" with the same effect
-  3. Login button gets a glow/pulse animation
-  4. Button auto-clicks after a short delay
-  5. Success toast appears, then auto-navigates to the main dashboard
+1. **Bot greeting** (auto, on load): "Namaste! I'm your Akshaya Agent. I can help you with government services..."
+2. **Auto-typed user input**: "I want to get a section number for my new building"
+3. **Bot reply**: Explains the Building Section Number scheme — 3 steps (Permit File → Completion Certificate → Section Number), documents needed, process overview
+4. **Auto-typed user input**: "What documents do I need?"
+5. **Bot reply**: Lists required documents (land deed, building plan, licensee details, Aadhaar, etc.)
+6. **Auto-typed user input**: "Yes, I want to apply for the permit file"
+7. **Bot reply**: "Starting your application for Building Permit File..." — then the UI transitions
 
-## Change 4: Main Dashboard Page (`/dashboard`)
-- The core SaarthiAI screen with:
-  - Fixed navbar (backdrop-blur, "Akshaya Agent" logo in saffron gradient, nav links)
-  - Welcome section with citizen stats cards (schemes available, applications, success rate)
-  - Quick action buttons: "Browse Schemes", "Apply Now", "My Applications"
-  - Recent activity feed placeholder
-- Full dark theme with the specified color palette (ink background, saffron/teal accents, Sora + DM Sans fonts)
+### UI transition after "Yes, apply"
+- Chat area smoothly transitions into a **multi-step application form** with:
+  - **Step 1**: Owner details (pre-filled dummy data)
+  - **Step 2**: Land & building details
+  - **Step 3**: Upload documents (dummy file chips)
+  - **Step 4**: Review & Submit
+- A progress bar at the top shows current step
+- Submit shows a success animation and navigates to `/applications`
 
-## Change 5: Routing & Navigation
-- `/` → Landing page with demo CTA
-- `/demo-login` → Auto-animated login screen
-- `/dashboard` → Main dashboard after login
+### Technical approach
+
+**Single file change**: `src/pages/v1/ApplyChat.tsx`
+
+- Add a `demoScript` array of `{ role, content, autoType? }` entries defining the entire conversation
+- Add a `scriptIndex` state tracking position in the script
+- After bot message appears, trigger typewriter effect on the next user message into the input textarea (reusing DemoLogin's `setInterval` pattern with `TYPE_SPEED = 30`)
+- User clicks Send → message sent instantly, bot "types" for 1.2s, then next bot message appears
+- When script reaches the "apply" confirmation, set a `phase` state to `"application"` which swaps the chat+input area for the form UI
+- Form UI is a self-contained component within the same file with 4 steps, dummy pre-filled data, and a submit action
+
+**Also update**: `src/pages/v1/Schemes.tsx` — add a "Building Section Number" scheme card to the grid so users can click into it.
+
+### Key details
+- Typewriter speed: ~30ms per character (fast but visible)
+- Delay between bot reply appearing and next auto-type starting: ~800ms
+- Send button pulses (`animate-glow-pulse`) when auto-type completes to prompt clicking
+- Input is read-only during auto-typing, editable otherwise (though script drives it)
+- The form steps use glass-card styling consistent with the rest of the app
 
