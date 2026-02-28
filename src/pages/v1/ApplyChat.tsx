@@ -754,7 +754,7 @@ const ApplyChat = () => {
         <>
           <div className="relative z-10 flex-1 overflow-hidden">
             <ScrollArea className="h-full">
-              <div ref={scrollRef} className="max-w-3xl mx-auto px-4 py-6 space-y-4 min-h-full">
+              <div ref={scrollRef} className="max-w-3xl mx-auto px-4 py-6 space-y-4 min-h-full pb-32">
                 {/* Context badge */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -822,8 +822,8 @@ const ApplyChat = () => {
             </ScrollArea>
           </div>
 
-          {/* Input area */}
-          <div className="relative z-10 glass border-t border-border">
+          {/* Floating Input area */}
+          <div className="fixed bottom-0 inset-x-0 z-50 glass border-t border-border/50 backdrop-blur-xl">
             <div className="max-w-3xl mx-auto px-4 py-3">
               <div className="flex items-start gap-2">
                 <div className="flex-1 relative">
