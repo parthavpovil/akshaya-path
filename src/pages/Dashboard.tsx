@@ -6,21 +6,23 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 const stats = [
   { label: "Schemes Available", value: "24", icon: FileText, color: "text-primary" },
-  { label: "Applications", value: "1,247", icon: Users, color: "text-secondary" },
-  { label: "Success Rate", value: "94%", icon: TrendingUp, color: "text-success" },
+  { label: "My Applications", value: "6", icon: Users, color: "text-secondary" },
+  { label: "Success Rate", value: "83%", icon: TrendingUp, color: "text-success" },
 ];
 
 const quickActions = [
   { label: "Browse Schemes", icon: ClipboardList, path: "/schemes" },
-  { label: "Apply Now", icon: Send, path: "/apply" },
+  { label: "Chat with Agent", icon: Send, path: "/apply" },
   { label: "My Applications", icon: FileText, path: "/applications" },
 ];
 
 const recentActivity = [
-  { text: "PM-KISAN application approved", time: "2 min ago", status: "approved" },
-  { text: "Ayushman Bharat eligibility check", time: "15 min ago", status: "in_progress" },
-  { text: "Scholarship documents verified", time: "1 hr ago", status: "approved" },
-  { text: "Housing scheme application submitted", time: "3 hrs ago", status: "pending" },
+  { text: "PM-KISAN ₹2,000 installment credited to A/c ****4523", time: "2 min ago", status: "approved" },
+  { text: "Ayushman Bharat — field verification scheduled for 05 Mar", time: "15 min ago", status: "in_progress" },
+  { text: "SC/ST Scholarship ₹12,000 disbursed for AY 2024-25", time: "1 hr ago", status: "approved" },
+  { text: "PM Awas Yojana — land ownership proof requested", time: "3 hrs ago", status: "pending" },
+  { text: "MUDRA Loan — bank assessment in progress", time: "5 hrs ago", status: "in_progress" },
+  { text: "Ujjwala Yojana — application rejected (duplicate LPG)", time: "1 day ago", status: "rejected" },
 ];
 
 const Dashboard = () => {
@@ -118,7 +120,8 @@ const Dashboard = () => {
                 <div className="flex items-center gap-3">
                   <CheckCircle className={`h-4 w-4 ${
                     item.status === "approved" ? "text-success" :
-                    item.status === "in_progress" ? "text-secondary" : "text-muted-foreground"
+                    item.status === "in_progress" ? "text-secondary" :
+                    item.status === "rejected" ? "text-destructive" : "text-muted-foreground"
                   }`} />
                   <span className="text-sm text-foreground font-body">{item.text}</span>
                 </div>

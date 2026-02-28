@@ -11,6 +11,7 @@ import DemoLogin from "./pages/DemoLogin";
 import Dashboard from "./pages/Dashboard";
 import Schemes from "./pages/Schemes";
 import ApplyChat from "./pages/ApplyChat";
+import Applications from "./pages/Applications";
 import PanchayatDashboard from "./pages/PanchayatDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -44,6 +45,7 @@ const App = () => {
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/schemes" element={<Schemes />} />
                   <Route path="/apply" element={<ApplyChat />} />
+                  <Route path="/applications" element={<Applications />} />
                   <Route path="/panchayat" element={<PanchayatDashboard />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
