@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Send, Bot, User, Sparkles, Loader2, CheckCircle, Upload, Building2, MapPin, FileText, ChevronRight } from "lucide-react";
+import { ArrowLeft, Send, Bot, User, Sparkles, Loader2, CheckCircle, Upload, Building2, MapPin, FileText, ChevronRight, ShieldCheck, Clock, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
@@ -50,10 +50,15 @@ const demoScript: ScriptEntry[] = [
 // Application form data
 const formSteps = ["Owner Details", "Land & Building", "Documents", "Review & Submit"];
 
+const FIELD_TYPE_SPEED = 25;
+const FIELD_DELAY = 300;
+
 const dummyOwner = {
   name: "Rajesh Kumar",
+  fatherName: "Mohan Kumar",
   aadhaar: "XXXX-XXXX-4829",
   phone: "+91 98765 43210",
+  email: "rajesh.kumar@gmail.com",
   address: "Ward 7, Kottayam Panchayat, Kerala",
 };
 
@@ -62,16 +67,64 @@ const dummyLand = {
   area: "2,400 sq.ft",
   zone: "Residential",
   plotAddress: "Plot No. 42, Green Valley Layout, Ward 7",
+  buildingType: "Individual Residential House",
+  floors: "Ground + 1 (Two Storey)",
+};
+
+const dummyEngineer = {
+  name: "Er. Suresh Nair",
+  licenseNo: "KL/CE/2847/2019",
+  regAuthority: "Kerala Panchayat – Dept. of Town Planning",
+  phone: "+91 94567 12345",
+  firmName: "Nair & Associates Civil Engineers",
+  category: "Class A – Licensed Surveyor & Civil Engineer",
 };
 
 const dummyDocs = [
-  { name: "Land_Deed_Patta.pdf", size: "2.4 MB", uploaded: true },
-  { name: "Building_Plan_v2.pdf", size: "5.1 MB", uploaded: true },
-  { name: "Aadhaar_Card.pdf", size: "1.2 MB", uploaded: true },
-  { name: "Tax_Receipt_2025.pdf", size: "0.8 MB", uploaded: true },
-  { name: "Engineer_License.pdf", size: "1.5 MB", uploaded: true },
-  { name: "Site_Plan.pdf", size: "3.2 MB", uploaded: true },
+  { name: "Land_Deed_Patta.pdf", size: "2.4 MB" },
+  { name: "Building_Plan_v2.dwg", size: "5.1 MB" },
+  { name: "Aadhaar_Card.pdf", size: "1.2 MB" },
+  { name: "Tax_Receipt_2025.pdf", size: "0.8 MB" },
+  { name: "Engineer_License.pdf", size: "1.5 MB" },
+  { name: "Site_Plan_Survey.pdf", size: "3.2 MB" },
 ];
+
+// Hook: auto-type a set of field values sequentially
+function useAutoTypeFields(fields: { key: string; value: string }[], active: boolean) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [doneCount, setDoneCount] = useState(0);
+  const allDone = doneCount >= fields.length;
+
+  useEffect(() => {
+    if (!active) return;
+    setValues({});
+    setDoneCount(0);
+
+    let cancelled = false;
+    let timeout: ReturnType<typeof setTimeout>;
+
+    const typeField = (fieldIdx: number) => {
+      if (cancelled || fieldIdx >= fields.length) return;
+      const { key, value } = fields[fieldIdx];
+      let charIdx = 0;
+      const interval = setInterval(() => {
+        if (cancelled) { clearInterval(interval); return; }
+        charIdx++;
+        setValues((prev) => ({ ...prev, [key]: value.slice(0, charIdx) }));
+        if (charIdx >= value.length) {
+          clearInterval(interval);
+          setDoneCount((c) => c + 1);
+          timeout = setTimeout(() => typeField(fieldIdx + 1), FIELD_DELAY);
+        }
+      }, FIELD_TYPE_SPEED);
+    };
+
+    timeout = setTimeout(() => typeField(0), 500);
+    return () => { cancelled = true; clearTimeout(timeout); };
+  }, [active, fields]);
+
+  return { values, allDone };
+}
 
 // ── Markdown-bold renderer ──
 const RenderContent = ({ content }: { content: string }) => (
@@ -86,9 +139,97 @@ const RenderContent = ({ content }: { content: string }) => (
   </>
 );
 
+// ── Document upload simulation ──
+const DocUploadItem = ({ doc, index }: { doc: { name: string; size: string }; index: number }) => {
+  const [progress, setProgress] = useState(0);
+  const [verifying, setVerifying] = useState(false);
+  const [verified, setVerified] = useState(false);
+
+  useEffect(() => {
+    const startDelay = setTimeout(() => {
+      const duration = 1200 + Math.random() * 800;
+      const steps = 30;
+      const stepTime = duration / steps;
+      let step = 0;
+      const interval = setInterval(() => {
+        step++;
+        setProgress(Math.min(100, Math.round((step / steps) * 100)));
+        if (step >= steps) {
+          clearInterval(interval);
+          setVerifying(true);
+          setTimeout(() => {
+            setVerifying(false);
+            setVerified(true);
+          }, 800 + Math.random() * 400);
+        }
+      }, stepTime);
+    }, index * 600);
+    return () => clearTimeout(startDelay);
+  }, [index]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.15 }}
+      className="flex items-center gap-3 bg-muted/50 rounded-xl px-4 py-3"
+    >
+      <FileText className="h-4 w-4 text-primary shrink-0" />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-body text-foreground truncate">{doc.name}</p>
+        <p className="text-[10px] font-mono text-muted-foreground">{doc.size}</p>
+        {progress < 100 && (
+          <div className="mt-1.5">
+            <Progress value={progress} className="h-1" />
+            <p className="text-[9px] font-mono text-muted-foreground mt-0.5">Uploading… {progress}%</p>
+          </div>
+        )}
+        {progress >= 100 && verifying && (
+          <p className="text-[9px] font-mono text-primary mt-1 flex items-center gap-1">
+            <Loader2 className="h-3 w-3 animate-spin" /> Verifying document…
+          </p>
+        )}
+      </div>
+      {verified && (
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" }}>
+          <BadgeCheck className="h-5 w-5 text-primary shrink-0" />
+        </motion.div>
+      )}
+      {verifying && !verified && <ShieldCheck className="h-5 w-5 text-muted-foreground shrink-0 animate-pulse" />}
+      {!verified && !verifying && progress < 100 && <Clock className="h-4 w-4 text-muted-foreground shrink-0" />}
+    </motion.div>
+  );
+};
+
 // ── Application Form ──
 const ApplicationForm = ({ onSubmit }: { onSubmit: () => void }) => {
   const [step, setStep] = useState(0);
+
+  const ownerFields = [
+    { key: "name", value: dummyOwner.name },
+    { key: "fatherName", value: dummyOwner.fatherName },
+    { key: "aadhaar", value: dummyOwner.aadhaar },
+    { key: "phone", value: dummyOwner.phone },
+    { key: "email", value: dummyOwner.email },
+    { key: "address", value: dummyOwner.address },
+  ];
+  const landFields = [
+    { key: "surveyNo", value: dummyLand.surveyNo },
+    { key: "area", value: dummyLand.area },
+    { key: "zone", value: dummyLand.zone },
+    { key: "plotAddress", value: dummyLand.plotAddress },
+    { key: "buildingType", value: dummyLand.buildingType },
+    { key: "floors", value: dummyLand.floors },
+    { key: "engName", value: dummyEngineer.name },
+    { key: "engLicense", value: dummyEngineer.licenseNo },
+    { key: "engAuthority", value: dummyEngineer.regAuthority },
+    { key: "engPhone", value: dummyEngineer.phone },
+    { key: "engFirm", value: dummyEngineer.firmName },
+    { key: "engCategory", value: dummyEngineer.category },
+  ];
+
+  const ownerAuto = useAutoTypeFields(ownerFields, step === 0);
+  const landAuto = useAutoTypeFields(landFields, step === 1);
 
   return (
     <motion.div
@@ -132,58 +273,92 @@ const ApplicationForm = ({ onSubmit }: { onSubmit: () => void }) => {
               <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2">
                 <User className="h-5 w-5 text-primary" /> Owner Details
               </h3>
-              <p className="text-xs text-muted-foreground font-body">Pre-filled from your profile. Verify and continue.</p>
+              <p className="text-xs text-muted-foreground font-body">Auto-filling from your verified profile…</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-mono text-muted-foreground">Full Name</Label>
-                  <Input defaultValue={dummyOwner.name} readOnly className="bg-muted/50 font-body" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-mono text-muted-foreground">Aadhaar Number</Label>
-                  <Input defaultValue={dummyOwner.aadhaar} readOnly className="bg-muted/50 font-body" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-mono text-muted-foreground">Phone</Label>
-                  <Input defaultValue={dummyOwner.phone} readOnly className="bg-muted/50 font-body" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-mono text-muted-foreground">Address</Label>
-                  <Input defaultValue={dummyOwner.address} readOnly className="bg-muted/50 font-body" />
-                </div>
+                {[
+                  { key: "name", label: "Full Name" },
+                  { key: "fatherName", label: "Father's Name" },
+                  { key: "aadhaar", label: "Aadhaar Number" },
+                  { key: "phone", label: "Phone" },
+                  { key: "email", label: "Email" },
+                  { key: "address", label: "Address" },
+                ].map((f) => (
+                  <div key={f.key} className="space-y-1.5">
+                    <Label className="text-xs font-mono text-muted-foreground">{f.label}</Label>
+                    <Input
+                      value={ownerAuto.values[f.key] || ""}
+                      readOnly
+                      className="bg-muted/50 font-body transition-all"
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
           {step === 1 && (
-            <div className="glass-card rounded-2xl p-6 space-y-4">
+            <div className="glass-card rounded-2xl p-6 space-y-6">
               <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-primary" /> Land & Building Details
               </h3>
-              <p className="text-xs text-muted-foreground font-body">Details from your land records.</p>
+              <p className="text-xs text-muted-foreground font-body">Fetching from land records & engineer registry…</p>
+              
+              {/* Land fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-mono text-muted-foreground">Survey Number</Label>
-                  <Input defaultValue={dummyLand.surveyNo} readOnly className="bg-muted/50 font-body" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-mono text-muted-foreground">Plot Area</Label>
-                  <Input defaultValue={dummyLand.area} readOnly className="bg-muted/50 font-body" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-mono text-muted-foreground">Zone</Label>
-                  <Input defaultValue={dummyLand.zone} readOnly className="bg-muted/50 font-body" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-mono text-muted-foreground">Plot Address</Label>
-                  <Input defaultValue={dummyLand.plotAddress} readOnly className="bg-muted/50 font-body" />
-                </div>
+                {[
+                  { key: "surveyNo", label: "Survey Number" },
+                  { key: "area", label: "Plot Area" },
+                  { key: "zone", label: "Zone Classification" },
+                  { key: "plotAddress", label: "Plot Address" },
+                  { key: "buildingType", label: "Building Type" },
+                  { key: "floors", label: "Number of Floors" },
+                ].map((f) => (
+                  <div key={f.key} className="space-y-1.5">
+                    <Label className="text-xs font-mono text-muted-foreground">{f.label}</Label>
+                    <Input
+                      value={landAuto.values[f.key] || ""}
+                      readOnly
+                      className="bg-muted/50 font-body transition-all"
+                    />
+                  </div>
+                ))}
               </div>
-              <div className="glass-card rounded-xl p-4 flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-primary shrink-0" />
-                <div>
-                  <p className="text-xs font-mono text-muted-foreground">Licensed Engineer</p>
-                  <p className="text-sm font-body text-foreground">Er. Suresh Nair — Lic. #KL-CE-2847</p>
+
+              {/* Licensed Engineer Section */}
+              <div className="border-t border-border pt-4 space-y-3">
+                <h4 className="font-display text-sm font-semibold text-foreground flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-primary" /> Licensed Civil Engineer (Licensee)
+                </h4>
+                <p className="text-[10px] text-muted-foreground font-mono">Government-registered engineer assigned to your application</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { key: "engName", label: "Engineer Name" },
+                    { key: "engLicense", label: "Government License No." },
+                    { key: "engAuthority", label: "Registration Authority" },
+                    { key: "engPhone", label: "Contact Number" },
+                    { key: "engFirm", label: "Firm / Practice Name" },
+                    { key: "engCategory", label: "License Category" },
+                  ].map((f) => (
+                    <div key={f.key} className="space-y-1.5">
+                      <Label className="text-xs font-mono text-muted-foreground">{f.label}</Label>
+                      <Input
+                        value={landAuto.values[f.key] || ""}
+                        readOnly
+                        className="bg-muted/50 font-body transition-all"
+                      />
+                    </div>
+                  ))}
                 </div>
+                {landAuto.allDone && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex items-center gap-2 bg-primary/10 text-primary rounded-lg px-3 py-2 text-xs font-mono"
+                  >
+                    <BadgeCheck className="h-4 w-4" />
+                    Engineer license verified with Kerala Town Planning Dept.
+                  </motion.div>
+                )}
               </div>
             </div>
           )}
@@ -193,17 +368,10 @@ const ApplicationForm = ({ onSubmit }: { onSubmit: () => void }) => {
               <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2">
                 <Upload className="h-5 w-5 text-primary" /> Documents
               </h3>
-              <p className="text-xs text-muted-foreground font-body">All required documents have been uploaded.</p>
+              <p className="text-xs text-muted-foreground font-body">Uploading and verifying required documents…</p>
               <div className="space-y-2">
-                {dummyDocs.map((doc) => (
-                  <div key={doc.name} className="flex items-center gap-3 bg-muted/50 rounded-xl px-4 py-3">
-                    <FileText className="h-4 w-4 text-primary shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-body text-foreground truncate">{doc.name}</p>
-                      <p className="text-[10px] font-mono text-muted-foreground">{doc.size}</p>
-                    </div>
-                    <CheckCircle className="h-4 w-4 text-primary shrink-0" />
-                  </div>
+                {dummyDocs.map((doc, i) => (
+                  <DocUploadItem key={doc.name} doc={doc} index={i} />
                 ))}
               </div>
             </div>
@@ -214,38 +382,81 @@ const ApplicationForm = ({ onSubmit }: { onSubmit: () => void }) => {
               <h3 className="font-display text-lg font-semibold text-foreground flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" /> Review & Submit
               </h3>
-              <div className="space-y-3 text-sm font-body">
-                <div className="flex justify-between py-2 border-b border-border">
-                  <span className="text-muted-foreground">Application Type</span>
-                  <span className="text-foreground font-semibold">Building Permit File</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-border">
-                  <span className="text-muted-foreground">Applicant</span>
-                  <span className="text-foreground">{dummyOwner.name}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-border">
-                  <span className="text-muted-foreground">Survey No.</span>
-                  <span className="text-foreground">{dummyLand.surveyNo}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-border">
-                  <span className="text-muted-foreground">Plot Area</span>
-                  <span className="text-foreground">{dummyLand.area}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-border">
-                  <span className="text-muted-foreground">Licensed Engineer</span>
-                  <span className="text-foreground">Er. Suresh Nair</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-border">
-                  <span className="text-muted-foreground">Documents</span>
-                  <span className="text-foreground">{dummyDocs.length} uploaded</span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="text-muted-foreground">Fee</span>
-                  <span className="text-foreground font-semibold">₹1,500</span>
+              
+              {/* Owner */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Owner Information</h4>
+                {[
+                  { label: "Full Name", value: dummyOwner.name },
+                  { label: "Father's Name", value: dummyOwner.fatherName },
+                  { label: "Aadhaar", value: dummyOwner.aadhaar },
+                  { label: "Phone", value: dummyOwner.phone },
+                  { label: "Email", value: dummyOwner.email },
+                  { label: "Address", value: dummyOwner.address },
+                ].map((r) => (
+                  <div key={r.label} className="flex justify-between py-1.5 border-b border-border text-sm font-body">
+                    <span className="text-muted-foreground">{r.label}</span>
+                    <span className="text-foreground text-right">{r.value}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Land & Building */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Land & Building</h4>
+                {[
+                  { label: "Survey No.", value: dummyLand.surveyNo },
+                  { label: "Plot Area", value: dummyLand.area },
+                  { label: "Zone", value: dummyLand.zone },
+                  { label: "Building Type", value: dummyLand.buildingType },
+                  { label: "Floors", value: dummyLand.floors },
+                ].map((r) => (
+                  <div key={r.label} className="flex justify-between py-1.5 border-b border-border text-sm font-body">
+                    <span className="text-muted-foreground">{r.label}</span>
+                    <span className="text-foreground text-right">{r.value}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Engineer */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-mono text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <ShieldCheck className="h-3 w-3" /> Licensed Engineer
+                </h4>
+                {[
+                  { label: "Name", value: dummyEngineer.name },
+                  { label: "License No.", value: dummyEngineer.licenseNo },
+                  { label: "Authority", value: dummyEngineer.regAuthority },
+                  { label: "Firm", value: dummyEngineer.firmName },
+                  { label: "Category", value: dummyEngineer.category },
+                ].map((r) => (
+                  <div key={r.label} className="flex justify-between py-1.5 border-b border-border text-sm font-body">
+                    <span className="text-muted-foreground">{r.label}</span>
+                    <span className="text-foreground text-right">{r.value}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Documents */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Documents ({dummyDocs.length} verified)</h4>
+                <div className="flex flex-wrap gap-2">
+                  {dummyDocs.map((d) => (
+                    <span key={d.name} className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                      <BadgeCheck className="h-3 w-3" /> {d.name}
+                    </span>
+                  ))}
                 </div>
               </div>
+
+              {/* Fee */}
+              <div className="flex justify-between py-2 text-sm font-body">
+                <span className="text-muted-foreground">Application Fee</span>
+                <span className="text-foreground font-semibold">₹1,500</span>
+              </div>
+
               <p className="text-[10px] text-muted-foreground font-mono">
-                By submitting, you confirm all details are accurate. The Panchayat will assign a site engineer for inspection within 7 working days.
+                By submitting, you confirm all details are accurate. The Panchayat will assign a site engineer for inspection within 7 working days. Engineer identity is anonymized to prevent bias.
               </p>
             </div>
           )}
@@ -262,7 +473,11 @@ const ApplicationForm = ({ onSubmit }: { onSubmit: () => void }) => {
           <div />
         )}
         {step < formSteps.length - 1 ? (
-          <Button onClick={() => setStep(step + 1)} className="gradient-saffron text-primary-foreground font-display">
+          <Button
+            onClick={() => setStep(step + 1)}
+            disabled={step === 0 && !ownerAuto.allDone || step === 1 && !landAuto.allDone}
+            className="gradient-saffron text-primary-foreground font-display"
+          >
             Next <ChevronRight className="ml-1 h-4 w-4" />
           </Button>
         ) : (
